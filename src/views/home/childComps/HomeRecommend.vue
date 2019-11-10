@@ -1,7 +1,7 @@
 <template>
   <div class="home-recommend">
     <a :href="item.link" v-for="(item,index) in recommends" :key="index" class="recommendsItem">
-      <img :src="item.image" alt />
+      <img v-lazy="item.image" @load="recommendsImageLoad" />
       <span>{{item.title}}</span>
     </a>
   </div>
@@ -16,6 +16,11 @@ export default {
       default() {
         return [];
       }
+    }
+  },
+  methods:{
+    recommendsImageLoad(){
+      this.$emit('recommendsImageLoad')
     }
   }
 };

@@ -11,7 +11,7 @@
       v-show="isTabControlShow"
     />
     <scroll
-      class="content"
+      class="content ignore"
       ref="scroll"
       :probe-type="3"
       :pullUpLoad="{threshold: -150}"
@@ -23,18 +23,20 @@
           :banners="banners"
           v-if="banners.length"
           @swiperImageLoaded="updataTabControlTop"
+          :key="swiperKey"
         />
         <img src="~assets/img/common/loading.gif" alt v-else />
       </div>
-      <home-recommend :recommends="recommends" />
-      <home-feature />
+      <home-recommend :recommends="recommends" @recommendsImageLoad="updataTabControlTop" />
+      <home-feature @featureImageLoad="updataTabControlTop" />
       <tab-control
         @itemClick="tabClick"
         :titles="['流行','新款','精选']"
         ref="tabControl"
         class="tab-control"
       />
-      <goods-list :goods="goods" :currentType="currentType" />
+      <goods-list :goods="goods" :currentType="currentType" v-if="goods.pop.list.length !==0" />
+      <div class="load-text ignore">{{loadText}}</div>
     </scroll>
     <transition name="backTop">
       <back-top @click.native="backTop" v-show="isBackTopShow" />
@@ -51,13 +53,15 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabcontrol/TabControl";
 import GoodsList from "components/content/goodsList/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
+// import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 import { debounce } from "commonjs/utils";
+import { backTopMixin } from "commonjs/mixins";
 
 export default {
   name: "Home",
+  mixins: [backTopMixin],
   components: {
     NavBar,
     HomeSwiper,
@@ -65,8 +69,8 @@ export default {
     HomeFeature,
     TabControl,
     GoodsList,
-    Scroll,
-    BackTop
+    Scroll
+    // BackTop
   },
   data() {
     return {
@@ -78,9 +82,13 @@ export default {
         sell: { page: 0, list: [] }
       },
       currentType: "pop",
-      isBackTopShow: false,
+      // isBackTopShow: false,
       tabControlOffsetTop: null,
-      isTabControlShow:false
+      isTabControlShow: false,
+      scrollPosition: { x: 0, y: 0 },
+      scrollY: 0,
+      swiperKey: Math.random(),
+      loadText:'再拉，再拉就刷给你看'
     };
   },
   created() {
@@ -117,15 +125,18 @@ export default {
       this.$refs.tabControl.currentIndex = index;
       this.$refs.tabControlClone.currentIndex = index;
     },
-    backTop() {
-      this.$refs.scroll.scrollTo(0, 0, 500);
-    },
+    // backTop() {
+    //   this.$refs.scroll.scrollTo(0, 0, 500);
+    // },
     contentScroll(position) {
       //tabcontrol是否显示
       this.isTabControlShow = this.tabControlOffsetTop <= -position.y;
-     
+
       //backtop是否显示
       this.isBackTopShow = -position.y > this.$refs.home.offsetHeight;
+
+      //实时记录position
+      // this.scrollPosition = position;
     },
     loadMore() {
       this._getHomeGoods(this.currentType);
@@ -133,6 +144,7 @@ export default {
     },
     updataTabControlTop() {
       //1.获取tabcontrol的offsetTop
+      // console.log(111)
       this.tabControlOffsetTop = this.$refs.tabControl.$el.offsetTop;
     },
     /**
@@ -146,11 +158,43 @@ export default {
     },
     _getHomeGoods(type) {
       const page = this.goods[type].page + 1;
-      getHomeGoods(type, page).then(res => {
-        this.goods[type].list.push(...res.data.list);
-        this.goods[type].page++;
-      });
+      getHomeGoods(type, page)
+        .then(res => {
+          this.goods[type].list.push(...res.data.list);
+          this.goods[type].page++;
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    /**
+     * 工具函数
+     */
+    _getTranslate(str) {
+      //获取滚动条当前的position 毫无意义直接this.$refs.scroll.getScrollY()
+      const pattern = /translate(\(.*?\))/;
+      const pattern2 = /[-]*[\d]+px/g;
+      let obj = { x: 0, y: 0 };
+      if (pattern.test(str)) {
+        let list = pattern
+          .exec(str)[1]
+          .match(pattern2)
+          .map(item => parseInt(item));
+        obj.x = list[0];
+        obj.y = list[1];
+      }
+      return obj;
     }
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.scrollY, 20);
+    this.$refs.scroll.refresh();
+
+    //重载swiper
+    this.swiperKey = Math.random();
+  },
+  deactivated() {
+    this.scrollY = this.$refs.scroll.getScrollY();
   }
 };
 </script>
@@ -178,13 +222,14 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
-.content {
+.content.ignore {
   /* height:calc(100%-93px); */
   /* height: 100%; */
   position: absolute;
   top: 44px;
-  bottom: 0px;
+  bottom: -40px;
   left: 0;
   right: 0;
 
@@ -202,6 +247,31 @@ export default {
   position: relative;
   right: 0;
   left: 0;
+  top: -1px;
   z-index: 9;
+}
+.load-text.ignore {
+  line-height: 40px;
+  text-align: center;
+}
+
+.load-text::after {
+  animation: dot 1.6s linear infinite both;
+  content: "";
+  position:absolute;
+}
+@keyframes dot {
+  0% {
+    content: ".";
+  }
+  33% {
+    content: "..";
+  }
+  66% {
+    content: "...";
+  }
+  100% {
+    content: ".";
+  }
 }
 </style>

@@ -1,19 +1,23 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import actions from './actions'
+import mutations from './mutations'
+import getters from './getters'
+
+
 Vue.use(Vuex)
 
+const state = {
+  activeColor: 'red',
+  cartList:[]
+}
+
 const store = new Vuex.Store({
-  state: {
-    activeColor: 'red'
-  },
-  mutations: {
-    setActiveColor(state, color) {
-      state.activeColor = color;
-    }
-  },
-  actions: {},
-  getters: {},
+  state,
+  mutations,
+  actions,
+  getters,
   models: {}
 })
 

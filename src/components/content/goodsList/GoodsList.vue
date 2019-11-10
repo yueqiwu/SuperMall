@@ -1,4 +1,4 @@
-<template>
+<template>       
   <div class="goods-list">
     <goods-list-item v-for="(item,index) in goodsList" :key="index" :good="item"/>
   </div>
@@ -18,6 +18,12 @@ export default {
     currentType:{
       type:String,
       default:'pop'
+    },
+    recommend:{
+      type:Object,
+      default(){
+        return {}
+      }
     }
   },
   components:{
@@ -25,6 +31,7 @@ export default {
   },
   computed:{
     goodsList(){
+      if(Object.keys(this.recommend).length) return this.recommend.list;
       return this.goods[this.currentType].list
     }
   },

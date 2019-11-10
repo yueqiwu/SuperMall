@@ -1,12 +1,11 @@
 <template>
-  <div class="goods-list-item">
-    <img :src="good.show.img" @load="imageLoad" />
+  <div class="goods-list-item" @click="itemClick">
+    <img v-lazy="imgSrc" @load="imageLoad" />
     <p class="titile">{{good.title}}</p>
     <p class="text-info">
       <span class="price">￥{{good.price}}</span>
       <span class="cfav">{{good.cfav}}</span>
     </p>
-    
   </div>
 </template>
 
@@ -24,9 +23,35 @@ export default {
   created() {
     // console.log(this.good);
   },
-  methods:{
-    imageLoad(){
-      this.$bus.$emit('itemImageLoad')
+  methods: {
+    imageLoad() {
+      if (this.$route.path.includes("/home")) {
+        this.$bus.$emit("itemImageLoad");
+      } else {
+        this.$bus.$emit("detailImageLoad");
+      }
+    },
+    itemClick() {
+      if (this.$route.path.includes("/home")) {
+        this.$router.push({
+          name: "details",
+          params: {
+            Id: this.good.iid || this.good.item_id
+          }
+        });
+      } 
+      else {
+        window.location.href = this.good.item_url;
+      }
+    }
+  },
+  computed: {
+    imgSrc() {
+      //  if(this.good.show){
+      //    return this.good.show.img
+      //  }
+      //  return this.good.image
+      return this.good.image || this.good.show.img;
     }
   }
 };
@@ -36,7 +61,7 @@ export default {
 .goods-list-item {
   width: 48%;
   /* height:312px; */
-  font-size:12px;
+  font-size: 12px;
 }
 .goods-list-item img {
   width: 100%;
@@ -50,28 +75,27 @@ export default {
   white-space: nowrap;
 }
 
-.goods-list-item .text-info{
+.goods-list-item .text-info {
   text-align: center;
-  padding-bottom:10px;
-  padding-top:3px;
-  
+  padding-bottom: 10px;
+  padding-top: 3px;
 }
-.goods-list-item .price{
-  color:var(--color-tint);
-  margin-right:3px;
+.goods-list-item .price {
+  color: var(--color-tint);
+  margin-right: 3px;
 }
-.goods-list-item .cfav{
-  padding-left:14px;
+.goods-list-item .cfav {
+  padding-left: 14px;
   position: relative;
 }
-.goods-list-item .cfav::before{
+.goods-list-item .cfav::before {
   position: absolute;
   display: block;
-  content:'';
-  width:14px;
-  height:14px;
+  content: "";
+  width: 14px;
+  height: 14px;
   background: url("~assets/img/common/collect.svg") 0 0/14px 14px;
-  top:-1px;
-  left:0;
+  top: -1px;
+  left: 0;
 }
 </style>

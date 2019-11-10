@@ -1,15 +1,16 @@
 <template>
-    <swiper>
-      <swiper-item v-for="(item,index) in banners" :key="index">
+    <swiper :options="swiperOption">
+      <swiper-slide v-for="(item,index) in banners" :key="index">
         <a :href="item.link">
           <img :src="item.image" @load="imageLoad"/>
         </a>
-      </swiper-item>
+      </swiper-slide>
+      <div class="swiper-pagination" slot="pagination"></div>
     </swiper>
 </template>
 
 <script>
-import { Swiper, SwiperItem } from "components/common/swiper";
+import { swiper, swiperSlide } from "vue-awesome-swiper";
 
 export default {
   name: "HomeSwiper",
@@ -22,10 +23,29 @@ export default {
     }
   },
   components: {
-    Swiper,
-    SwiperItem
+    swiper,
+    swiperSlide
+  },
+  created(){
+    this.init();
   },
   methods:{
+    init(){
+      this.swiperOption={
+        watchOverflow: true, //只有一个slider时，swiper会失效且隐藏导航等
+        direction: 'horizontal',
+        autoplay: {
+              delay: 1000,
+              disableOnInteraction: false //一旦有交互就停止轮播
+            },
+        slidesPerView: 1, //设置slider容器能够同时显示的slides数量
+        loop: true,
+        pagination: {
+          //导航点
+          el: ".swiper-pagination"
+        },
+      }
+    },
     imageLoad(){
       this.$emit('swiperImageLoaded')
     }
@@ -33,5 +53,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+img{
+  width:100%;
+  height:100%;
+}
 </style>

@@ -47,11 +47,10 @@ export default {
   justify-content: center;
   font-size: 14px;
 }
-.iconfont {
+/* .iconfont {
   font-size: 22px;
-  /* margin-bottom:2px; */
 }
 .active {
   color: red;
-}
+} */
 </style>

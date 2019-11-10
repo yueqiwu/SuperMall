@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div id="body">
-      <keep-alive>
+      <keep-alive exclude="Details">
         <router-view />
       </keep-alive>
     </div>
@@ -27,9 +27,10 @@ import mainTabbar from 'components/content/mainTabbar/MainTabBar'
   right: 0;
   top: 0;
   bottom: 0;
-  padding-bottom: 50px;
-  overflow-x: hidden;
-  overflow-y:scroll;
+  padding-bottom: 49px;
+  overflow: hidden;
+  /* overflow-x: hidden;
+  overflow-y:scroll; */
   /* -webkit-overflow-scrolling: touch; */
 }
 </style>

@@ -49,5 +49,11 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.iconfont {
+  font-size: 22px;
+}
+.active {
+  color: red;
+}
 </style>
