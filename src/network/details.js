@@ -20,9 +20,9 @@ export function getRecommend(){
     url:"/recommend"
   }).then(res=>{
     return new Promise((resolve,reject)=>{
-      // setTimeout(() => {
+      setTimeout(() => {
         resolve(res)
-      // },2000);
+      },12000);
     })
   })
 }

@@ -14,10 +14,15 @@
       class="content ignore"
       ref="scroll"
       :probe-type="3"
-      :pullUpLoad="{threshold: -150}"
+      :pullUpLoad="{threshold: -80}"
+      :pullDownRefresh="{threshold:80}"
       @scroll="contentScroll"
       @pullUpLoad="loadMore"
+      @pullDownRefresh="pullDownRefresh"
+      @touchend.native="isTouch=false"
+      @touchstart.native="isTouch=true"
     >
+      <div class="load-text ignore">{{downLoadText}}</div>
       <div class="home-swiper">
         <home-swiper
           :banners="banners"
@@ -27,7 +32,11 @@
         />
         <img src="~assets/img/common/loading.gif" alt v-else />
       </div>
-      <home-recommend :recommends="recommends" @recommendsImageLoad="updataTabControlTop" />
+      <home-recommend
+        :recommends="recommends"
+        @recommendsImageLoad="updataTabControlTop"
+        :key="recommendKey"
+      />
       <home-feature @featureImageLoad="updataTabControlTop" />
       <tab-control
         @itemClick="tabClick"
@@ -35,8 +44,8 @@
         ref="tabControl"
         class="tab-control"
       />
-      <goods-list :goods="goods" :currentType="currentType" v-if="goods.pop.list.length !==0" />
-      <div class="load-text ignore">{{loadText}}</div>
+      <goods-list :goods="goods" :currentType="currentType" :key="goodsListKey" />
+      <div class="load-text ignore" v-if="goods[currentType].list.length !==0">{{upLoadText}}</div>
     </scroll>
     <transition name="backTop">
       <back-top @click.native="backTop" v-show="isBackTopShow" />
@@ -77,9 +86,9 @@ export default {
       banners: [],
       recommends: [],
       goods: {
-        pop: { page: 0, list: [] },
-        new: { page: 0, list: [] },
-        sell: { page: 0, list: [] }
+        pop: { page: 0, list: [], loaded: true },
+        new: { page: 0, list: [], loaded: true },
+        sell: { page: 0, list: [], loaded: true }
       },
       currentType: "pop",
       // isBackTopShow: false,
@@ -88,7 +97,12 @@ export default {
       scrollPosition: { x: 0, y: 0 },
       scrollY: 0,
       swiperKey: Math.random(),
-      loadText:'再拉，再拉就刷给你看'
+      recommendKey: Math.random(),
+      goodsListKey: Math.random(),
+      upLoadText: "再拉，再拉就刷给你看",
+      downLoadText: "再拉，再拉就刷给你看",
+      scrollBottom: 0,
+      isTouch: false
     };
   },
   created() {
@@ -96,8 +110,8 @@ export default {
     this._getHomeMultidata();
     //2.请求商品数据
     this._getHomeGoods("pop");
-    this._getHomeGoods("new");
-    this._getHomeGoods("sell");
+    // this._getHomeGoods("new");
+    // this._getHomeGoods("sell");
   },
   mounted() {
     // 1.监听goodslistitem中图片的加载完成
@@ -122,6 +136,11 @@ export default {
           this.currentType = "sell";
           break;
       }
+      // console.log(item)
+      if (this.goods[this.currentType].list.length === 0) {
+        //加载不同分类的商品
+        this._getHomeGoods(this.currentType);
+      }
       this.$refs.tabControl.currentIndex = index;
       this.$refs.tabControlClone.currentIndex = index;
     },
@@ -135,17 +154,58 @@ export default {
       //backtop是否显示
       this.isBackTopShow = -position.y > this.$refs.home.offsetHeight;
 
-      //实时记录position
-      // this.scrollPosition = position;
+      //上拉加载改变文字
+      if (this.scrollBottom) {
+        // console.log(-position.y,this.scrollBottom)
+        if (-position.y + this.scrollBottom > 20) {
+          this.upLoadText = "够了啦，松开人家嘛";
+          if (this.isTouch === false) {
+            //用户松手 加载数据
+            this._getHomeGoods(this.currentType);
+            this.upLoadText = "刷呀刷呀，好累啊，喵^w^";
+            this.scrollBottom = 0;
+          }
+        } else {
+          this.upLoadText = "再拉，再拉就刷给你看";
+        }
+      }
+
+      //下拉刷新改变文字
+      if (position.y > 80) {
+        this.downLoadText = "够了啦，松开人家嘛";
+      } else {
+        this.downLoadText = "再拉，再拉就刷给你看";
+      }
     },
     loadMore() {
-      this._getHomeGoods(this.currentType);
+      this.scrollBottom = this.$refs.scroll.getScrollY();
+      // this._getHomeGoods(this.currentType);
+      // console.log(this.$refs.scroll.getScrollY())
       this.$refs.scroll.finishPullUp();
     },
     updataTabControlTop() {
       //1.获取tabcontrol的offsetTop
       // console.log(111)
       this.tabControlOffsetTop = this.$refs.tabControl.$el.offsetTop;
+    },
+    pullDownRefresh() {
+      //下拉刷新 清空数组
+      this.banners.length = 0;
+      this.recommends.length = 0;
+      this.goods = {
+        pop: { page: 0, list: [], loaded: true },
+        new: { page: 0, list: [], loaded: true },
+        sell: { page: 0, list: [], loaded: true }
+      };
+      //重载组件
+      this.swiperKey = Math.random();
+      this.recommendKey = Math.random();
+      this.goodsListKey = Math.random();
+      //请求数据
+      this._getHomeMultidata();
+      this._getHomeGoods(this.currentType);
+
+      this.$refs.scroll.finishPullDown();
     },
     /**
      * axios请求
@@ -157,11 +217,16 @@ export default {
       });
     },
     _getHomeGoods(type) {
+      if (this.goods[type].loaded === false) return; //判断前一次请求数据是否返回了 没返回就不加载 避免加载多次
       const page = this.goods[type].page + 1;
+      this.goods[type].loaded = false;
       getHomeGoods(type, page)
         .then(res => {
+          this.upLoadText = "加载完了哦";
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page++;
+          this.goods[type].loaded = true;
+          this.upLoadText = "再拉，再拉就刷给你看";
         })
         .catch(err => {
           console.log(err);
@@ -209,6 +274,8 @@ export default {
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
+  position: relative;
+  z-index: 9;
 
   /* position: fixed;
   top: 0;
@@ -228,7 +295,7 @@ export default {
   /* height:calc(100%-93px); */
   /* height: 100%; */
   position: absolute;
-  top: 44px;
+  top: 4px;
   bottom: -40px;
   left: 0;
   right: 0;
@@ -250,6 +317,7 @@ export default {
   top: -1px;
   z-index: 9;
 }
+
 .load-text.ignore {
   line-height: 40px;
   text-align: center;
@@ -258,7 +326,7 @@ export default {
 .load-text::after {
   animation: dot 1.6s linear infinite both;
   content: "";
-  position:absolute;
+  position: absolute;
 }
 @keyframes dot {
   0% {

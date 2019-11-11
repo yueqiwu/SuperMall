@@ -123,11 +123,11 @@ export default {
     this.scroll = new BScroll(".wrap", {
       probeType: 3, //设置是否监听滚动 0，1为默认不监听 2监听手指但不监听手指离开的惯性 3全监听
       pullUpLoad: {
-        threshold: -50
+        threshold: -10
       },
       pullDownRefresh: {
-        threshold: 100,
-        // stop: -10
+        threshold: 50,
+        stop: 20
       },
       click: true
     });

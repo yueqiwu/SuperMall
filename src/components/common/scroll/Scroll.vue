@@ -24,21 +24,29 @@ export default {
     pullUpLoad: {
       type: [Boolean, Object],
       default: false
-    }
+    },
+    pullDownRefresh:{
+      type: [Boolean, Object],
+      default: false
+    },
   },
   mounted() {
     this.scroll = new Bscroll(this.$refs.wrapper, {
       probeType: this.probeType, //设置是否监听滚动 0，1为默认不监听 2监听手指但不监听手指离开的惯性 3全监听
       pullUpLoad: this.pullUpLoad,
+      pullDownRefresh:this.pullDownRefresh,
       click: true,
-      threshold: 100
     });
     this.scroll.on("scroll", position => {
       this.$emit("scroll", position);
     });
     this.scroll.on("pullingUp", () => {
-      console.log('上啦刷星')
+      console.log('上啦加载')
       this.$emit("pullUpLoad");
+    });
+    this.scroll.on("pullingDown", () => {
+      console.log('下拉刷新')
+      this.$emit("pullDownRefresh");
     });
   },
   methods: {
@@ -49,6 +57,9 @@ export default {
     },
     finishPullUp() {
       this.scroll && this.scroll.finishPullUp();
+    },
+    finishPullDown(){
+      this.scroll && this.scroll.finishPullDown();
     },
     refresh() {
       this.scroll && this.scroll.refresh();

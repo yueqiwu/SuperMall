@@ -14,4 +14,11 @@ export function getHomeGoods(type,page){
       page
     }
   })
+  // .then(res=>{//模拟数据延迟
+  //   return new Promise((resolve,reject)=>{
+  //     setTimeout(()=>{
+  //       resolve(res)
+  //     },2000)
+  //   })
+  // })
 }
