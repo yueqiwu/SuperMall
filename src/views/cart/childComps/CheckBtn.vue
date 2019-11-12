@@ -1,5 +1,5 @@
 <template>
-  <div class="check-btn" :class="{checked:isChecked}" @click="btnClick">
+  <div class="check-btn ignore" :class="{checked:isChecked}" @click="btnClick">
     <!-- <img src="~assets/img/cart/tick.svg" alt=""> -->
   </div>
 </template>
@@ -22,7 +22,7 @@ export default {
 </script>
 
 <style scoped>
-  .check-btn{
+  .check-btn.ignore{
     width:16px;
     height:16px;
     border:1px solid #999;

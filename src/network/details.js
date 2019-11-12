@@ -18,13 +18,14 @@ export function getDetails(iid){
 export function getRecommend(){
   return request({
     url:"/recommend"
-  }).then(res=>{
-    return new Promise((resolve,reject)=>{
-      setTimeout(() => {
-        resolve(res)
-      },12000);
-    })
   })
+  // .then(res=>{
+  //   return new Promise((resolve,reject)=>{
+  //     setTimeout(() => {
+  //       resolve(res)
+  //     },2000);
+  //   })
+  // })
 }
 
 export class Goods{

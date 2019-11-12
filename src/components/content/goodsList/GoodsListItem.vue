@@ -27,12 +27,14 @@ export default {
     imageLoad() {
       if (this.$route.path.includes("/home")) {
         this.$bus.$emit("itemImageLoad");
-      } else {
+      } else if(this.$route.path.includes("/details")) {
         this.$bus.$emit("detailImageLoad");
+      }else{
+        this.$bus.$emit("categoryImageLoad");
       }
     },
     itemClick() {
-      if (this.$route.path.includes("/home")) {
+      if (this.$route.path.includes("/home")||this.$route.path.includes("/category")) {
         this.$router.push({
           name: "details",
           params: {
@@ -51,7 +53,7 @@ export default {
       //    return this.good.show.img
       //  }
       //  return this.good.image
-      return this.good.image || this.good.show.img;
+      return this.good.image || this.good.img ||this.good.show.img;
     }
   }
 };

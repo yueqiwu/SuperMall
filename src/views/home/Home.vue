@@ -44,7 +44,7 @@
         ref="tabControl"
         class="tab-control"
       />
-      <goods-list :goods="goods" :currentType="currentType" :key="goodsListKey" />
+      <goods-list :goodsList="goods[currentType].list" :currentType="currentType" :key="goodsListKey" />
       <div class="load-text ignore" v-if="goods[currentType].list.length !==0">{{upLoadText}}</div>
     </scroll>
     <transition name="backTop">

@@ -1,6 +1,6 @@
 <template>
   <div class="cart-list">
-    <scroll class="content" ref="scroll">
+    <scroll class="content ignore" ref="scroll">
       <cart-list-item v-for="(item,index) in cartList" :key="index" :itemInfo="item" :index="index"/>
     </scroll>
   </div>
@@ -26,7 +26,7 @@ export default {
 </script>
 
 <style scoped>
-.content{
+.content.ignore{
   position:absolute;
   top:44px;
   bottom:93px;

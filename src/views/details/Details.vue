@@ -9,8 +9,7 @@
       <params-info :param-info="goodsParam" ref="params" />
       <comment-info :comment="comment" ref="comment" />
       <goods-list
-        :recommend="recommend"
-        v-if="Object.keys(recommend).length !== 0"
+        :goodsList="recommend.list"
         ref="recommend"
       />
     </scroll>
@@ -216,5 +215,13 @@ export default {
   left: 0;
   right: 0;
   bottom: 58px;
+}
+.backTop-leave-active,
+.backTop-enter-active {
+  transition: opacity 0.5s;
+}
+.backTop-leave-to,
+.backTop-enter {
+  opacity: 0;
 }
 </style>

@@ -1,163 +1,173 @@
 <template>
-  <div class="wrap">
-    <ul>
-      <button @click="itclick">2</button>
-      <div @click="itclick">2343</div>
-      <li>1</li>
-      <li>2</li>
-      <li>3</li>
-      <li>4</li>
-      <li>5</li>
-      <li>6</li>
-      <li>7</li>
-      <li>8</li>
-      <li>9</li>
-      <li>10</li>
-      <li>11</li>
-      <li>12</li>
-      <li>13</li>
-      <li>14</li>
-      <li>15</li>
-      <li>16</li>
-      <li>17</li>
-      <li>18</li>
-      <li>19</li>
-      <li>20</li>
-      <li>21</li>
-      <li>22</li>
-      <li>23</li>
-      <li>24</li>
-      <li>25</li>
-      <li>26</li>
-      <li>27</li>
-      <li>28</li>
-      <li>29</li>
-      <li>30</li>
-      <li>31</li>
-      <li>32</li>
-      <li>33</li>
-      <li>34</li>
-      <li>35</li>
-      <li>36</li>
-      <li>37</li>
-      <li>38</li>
-      <li>39</li>
-      <li>40</li>
-      <li>41</li>
-      <li>42</li>
-      <li>43</li>
-      <li>44</li>
-      <li>45</li>
-      <li>46</li>
-      <li>47</li>
-      <li>48</li>
-      <li>49</li>
-      <li>50</li>
-      <li>51</li>
-      <li>52</li>
-      <li>53</li>
-      <li>54</li>
-      <li>55</li>
-      <li>56</li>
-      <li>57</li>
-      <li>58</li>
-      <li>59</li>
-      <li>60</li>
-      <li>61</li>
-      <li>62</li>
-      <li>63</li>
-      <li>64</li>
-      <li>65</li>
-      <li>66</li>
-      <li>67</li>
-      <li>68</li>
-      <li>69</li>
-      <li>70</li>
-      <li>71</li>
-      <li>72</li>
-      <li>73</li>
-      <li>74</li>
-      <li>75</li>
-      <li>76</li>
-      <li>77</li>
-      <li>78</li>
-      <li>79</li>
-      <li>80</li>
-      <li>81</li>
-      <li>82</li>
-      <li>83</li>
-      <li>84</li>
-      <li>85</li>
-      <li>86</li>
-      <li>87</li>
-      <li>88</li>
-      <li>89</li>
-      <li>90</li>
-      <li>91</li>
-      <li>92</li>
-      <li>93</li>
-      <li>94</li>
-      <li>95</li>
-      <li>96</li>
-      <li>97</li>
-      <li>98</li>
-      <li>99</li>
-      <li>100</li>
-    </ul>
+  <div class="category">
+    <nav-bar class="navBar">
+      <template v-slot:center>商品分类</template>
+    </nav-bar>
+    <div class="category-wrap ignore" ref="wrap">
+      <menu-list :menuList="menuList" @itemClick="menuItemClick" />
+      <scroll class="content" ref="scroll" :probeType="3" @scroll="contentScroll">
+        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll" />
+        <tab-control :titles="['综合','新品','销量']" @itemClick="tabItemClick" />
+        <goods-list :goodsList="categoryDetails" :key="goodsListKey"/>
+      </scroll>
+    </div>
+    <transition name="backTop">
+      <back-top @click.native="backTop" v-show="isBackTopShow" />
+    </transition>
   </div>
 </template>
 
 <script>
-import BScroll from "better-scroll";
+import NavBar from "components/common/navbar/NavBar";
+import scroll from "components/common/scroll/Scroll.vue";
+import TabControl from "components/content/tabcontrol/TabControl";
+import GoodsList from "components/content/goodsList/GoodsList";
+
+import MenuList from "./childComps/Menu";
+import SubCategory from "./childComps/SubCategory";
+
+import {
+  getMenu,
+  getSubCategory,
+  getCategoryDetails
+} from "network/category.js";
+import { debounce } from "commonjs/utils";
+import { backTopMixin } from "commonjs/mixins";
+
 export default {
   name: "Category",
+  components: {
+    NavBar,
+    MenuList,
+    SubCategory,
+    scroll,
+    TabControl,
+    GoodsList
+  },
   data() {
     return {
-      scroll: null
+      menuList: [],
+      subCategory: [],
+      subCategoryDataLoading: false,
+      categoryDetails: [],
+      currentType: "pop",
+      miniWallkey:null,
+      goodsListKey:Math.random()
     };
   },
-  created() {},
-  props: {},
-  components: {},
+  mixins: [backTopMixin],
+  created() {
+    this._getMenu().then(res => {
+      //一定是先获取menu内容后在获取具体内容
+      this._getSubCategory(res[0].maitKey);
+      this._getCategoryDetails(res[0].miniWallkey, this.currentType);
+      this.miniWallkey = res[0].miniWallkey;
+    });
+  },
   mounted() {
-    this.scroll = new BScroll(".wrap", {
-      probeType: 3, //设置是否监听滚动 0，1为默认不监听 2监听手指但不监听手指离开的惯性 3全监听
-      pullUpLoad: {
-        threshold: -10
-      },
-      pullDownRefresh: {
-        threshold: 50,
-        stop: 20
-      },
-      click: true
-    });
-
-    this.scroll.on("scroll", position => {
-      // console.log(position)
-    });
-
-    this.scroll.on("pullingUp", () => {
-      console.log("加载");
-      this.scroll.finishPullUp();
-    });
-    this.scroll.on("pullingDown", () => {
-      console.log("刷星");
-      this.scroll.finishPullDown();
+    // 1.监听goodslistitem中图片的加载完成
+    const refresh = debounce(this.$refs.scroll.refresh);
+    this.$bus.$on("categoryImageLoad", () => {
+      refresh();
     });
   },
   methods: {
-    itclick() {
-      console.log("dsf");
+    /**
+     * 事件触发
+     */
+    menuItemClick(maitKey, miniWallkey) {
+      // console.log(this.subCategoryDataLoading)
+      // if(this.subCategoryDataLoading) return;
+      this.miniWallkey = miniWallkey;
+      this._getSubCategory(maitKey);
+      this._getCategoryDetails(miniWallkey, this.currentType);
+      this.$refs.scroll.scrollTo(0,0,0)
+    },
+    refreshScroll() {
+      this.$refs.scroll.refresh();
+    },
+    contentScroll(position) {
+      this.isBackTopShow = -position.y > this.$refs.wrap.offsetHeight;
+    },
+    tabItemClick(index) {
+      switch (index) {
+        case 0:
+          this.currentType = "pop";
+          break;
+        case 1:
+          this.currentType = "new";
+          break;
+        case 2:
+          this.currentType = "sell";
+          break;
+      }
+      this.categoryDetails.length = 0;
+      this.goodsListKey = Math.random();
+      this._getCategoryDetails(this.miniWallkey,this.currentType)
+    },
+    /**
+     * axios请求
+     */
+    _getMenu() {
+      return new Promise((resolve, reject) => {
+        getMenu().then(res => {
+          this.menuList = res.data.category.list;
+          resolve(res.data.category.list);
+        });
+      });
+    },
+    _getSubCategory(maitKey) {
+      this.subCategoryDataLoading = true;
+      return getSubCategory(maitKey).then(res => {
+        this.subCategory = res.data.list;
+        this.subCategoryDataLoading = false;
+      });
+    },
+    _getCategoryDetails(miniWallkey, type) {
+      return getCategoryDetails(miniWallkey, type).then(res => {
+        this.categoryDetails = res;
+        // console.log(this.categoryDetails);
+      });
     }
   }
 };
 </script>
 
 <style scoped>
-.wrap {
-  height: 200px;
-  background-color: red;
-  /* overflow-y: scroll; */
+.category {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.navBar {
+  background-color: var(--color-tint);
+  color: #fff;
+}
+
+.category-wrap.ignore {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  left: 0;
+  bottom: 0px;
+  display: flex;
+}
+.menu {
+  width: 100px;
+  height: 100%;
+  flex-shrink: 0;
+}
+.content {
+  flex: 1;
+  padding: 0px 8px;
   overflow: hidden;
+}
+.backTop-leave-active,
+.backTop-enter-active {
+  transition: opacity 0.5s;
+}
+.backTop-leave-to,
+.backTop-enter {
+  opacity: 0;
 }
 </style>

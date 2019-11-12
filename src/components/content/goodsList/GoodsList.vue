@@ -1,11 +1,11 @@
 <template>
   <div class="goods">
-    <div class="goods-list">
+    <div class="goods-list" v-if="goodsList.length">
       <goods-list-item v-for="(item,index) in goodsList" :key="index" :good="item" />
     </div>
-    <!-- <div class="loading" v-else>
+    <div class="loading" v-else>
       <img src="~assets/img/common/loading.gif" alt @load="imgLoad" />
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -14,31 +14,15 @@ import GoodsListItem from "./GoodsListItem";
 export default {
   name: "GoodsList",
   props: {
-    goods: {
-      type: Object,
+    goodsList: {
+      type: Array,
       default() {
-        return {};
+        return [];
       }
     },
-    currentType: {
-      type: String,
-      default: "pop"
-    },
-    recommend: {
-      type: Object,
-      default() {
-        return {};
-      }
-    }
   },
   components: {
     GoodsListItem
-  },
-  computed: {
-    goodsList() {
-      if (Object.keys(this.recommend).length) return this.recommend.list;
-      return this.goods[this.currentType].list;
-    }
   },
   methods:{
     imgLoad(){
