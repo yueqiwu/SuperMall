@@ -1,4 +1,3 @@
-import { runInNewContext } from "vm"
 
 export default {
   cartLength(state){

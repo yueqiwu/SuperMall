@@ -6,7 +6,7 @@
     <div class="category-wrap ignore" ref="wrap">
       <menu-list :menuList="menuList" @itemClick="menuItemClick" />
       <scroll class="content" ref="scroll" :probeType="3" @scroll="contentScroll">
-        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll" />
+        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll" :key="subCategoryKey"/>
         <tab-control :titles="['综合','新品','销量']" @itemClick="tabItemClick" />
         <goods-list :goodsList="categoryDetails" :key="goodsListKey"/>
       </scroll>
@@ -52,7 +52,8 @@ export default {
       categoryDetails: [],
       currentType: "pop",
       miniWallkey:null,
-      goodsListKey:Math.random()
+      goodsListKey:Math.random(),
+      subCategoryKey:Math.random()
     };
   },
   mixins: [backTopMixin],
@@ -76,12 +77,21 @@ export default {
      * 事件触发
      */
     menuItemClick(maitKey, miniWallkey) {
-      // console.log(this.subCategoryDataLoading)
-      // if(this.subCategoryDataLoading) return;
+
+      if(this.subCategoryDataLoading) return;//重复点击 取消请求
+
+      //数据清空 组件重载
+      this.subCategory.length = 0;
+      this.categoryDetails.length = 0;
+      this.goodsListKey = Math.random();
+      this.subCategoryKey = Math.random();
+
+      //发送请求 获取数据
       this.miniWallkey = miniWallkey;
       this._getSubCategory(maitKey);
       this._getCategoryDetails(miniWallkey, this.currentType);
-      this.$refs.scroll.scrollTo(0,0,0)
+      //保证每次点击滚动条都在顶部
+      this.$refs.scroll.scrollTo(0,0,0);
     },
     refreshScroll() {
       this.$refs.scroll.refresh();
@@ -119,14 +129,14 @@ export default {
     _getSubCategory(maitKey) {
       this.subCategoryDataLoading = true;
       return getSubCategory(maitKey).then(res => {
-        this.subCategory = res.data.list;
+        this.subCategory = res?res.data.list:[];//快速点击 取消前一次操作时可能会返回undifined 所以做一次默认值
         this.subCategoryDataLoading = false;
       });
     },
     _getCategoryDetails(miniWallkey, type) {
       return getCategoryDetails(miniWallkey, type).then(res => {
-        this.categoryDetails = res;
-        // console.log(this.categoryDetails);
+        this.categoryDetails = res || [];
+        // console.log(res);
       });
     }
   }

@@ -1,7 +1,7 @@
 import { ADD_COUNTER, ADD_TO_CART } from './mutation-types'
 
 export default {
-  addCart(context, payload) {
+  addCart(context, payload) {//判断是否否已经添加过
     return new Promise((resolve, reject) => {
       let isRepeat = false;
       for (let i of context.state.cartList) {
