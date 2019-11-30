@@ -36,7 +36,7 @@ export default {
     itemClick(index,maitKey,miniWallkey){
       this.currentIndex = index;
       // console.log(maitKey)
-      this.$emit('itemClick',maitKey,miniWallkey)
+      this.$emit('itemClick',index,maitKey,miniWallkey)
     }
   }
 };

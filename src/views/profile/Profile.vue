@@ -21,10 +21,7 @@
           <span>查看我的全部订单</span>
         </div>
         <div class="order-menu">
-          <div
-            v-for="(item,index) in orderMenuList"
-            :key="index"
-          >
+          <div v-for="(item,index) in orderMenuList" :key="index">
             <i class="iconfont" :class="item.class"></i>
             <span>{{item.text}}</span>
           </div>
@@ -66,11 +63,22 @@ export default {
     MeScroll,
     MeMenu
   },
-  data(){
+  data() {
     return {
-      othersList:['售后服务','意见反馈','收货地址','退出登录','400-123-8888'],
-      orderMenuList:[{text:'待付款',class:'icon-home'},{text:'待收货',class:'icon-category'},{text:'待评价',class:'icon-msg'},{text:'退货/退款',class:'icon-category'}]
-    }
+      othersList: [
+        "售后服务",
+        "意见反馈",
+        "收货地址",
+        "退出登录",
+        "400-123-8888"
+      ],
+      orderMenuList: [
+        { text: "待付款", class: "icon-home" },
+        { text: "待收货", class: "icon-category" },
+        { text: "待评价", class: "icon-msg" },
+        { text: "退货/退款", class: "icon-category" }
+      ],
+    };
   }
 };
 </script>

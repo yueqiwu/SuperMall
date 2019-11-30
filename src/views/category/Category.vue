@@ -6,9 +6,9 @@
     <div class="category-wrap ignore" ref="wrap">
       <menu-list :menuList="menuList" @itemClick="menuItemClick" />
       <scroll class="content" ref="scroll" :probeType="3" @scroll="contentScroll">
-        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll" :key="subCategoryKey"/>
+        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll"/>
         <tab-control :titles="['综合','新品','销量']" @itemClick="tabItemClick" />
-        <goods-list :goodsList="categoryDetails" :key="goodsListKey"/>
+        <goods-list :goodsList="categoryDetails"/>
       </scroll>
     </div>
     <transition name="backTop">
@@ -48,12 +48,9 @@ export default {
     return {
       menuList: [],
       subCategory: [],
-      subCategoryDataLoading: false,
       categoryDetails: [],
       currentType: "pop",
       miniWallkey:null,
-      goodsListKey:Math.random(),
-      subCategoryKey:Math.random()
     };
   },
   mixins: [backTopMixin],
@@ -63,6 +60,7 @@ export default {
       this._getSubCategory(res[0].maitKey);
       this._getCategoryDetails(res[0].miniWallkey, this.currentType);
       this.miniWallkey = res[0].miniWallkey;
+      this.maitKey = res[0].maitKey;
     });
   },
   mounted() {
@@ -76,15 +74,11 @@ export default {
     /**
      * 事件触发
      */
-    menuItemClick(maitKey, miniWallkey) {
-
-      if(this.subCategoryDataLoading) return;//重复点击 取消请求
+    menuItemClick(index,maitKey, miniWallkey) {
 
       //数据清空 组件重载
-      this.subCategory.length = 0;
-      this.categoryDetails.length = 0;
-      this.goodsListKey = Math.random();
-      this.subCategoryKey = Math.random();
+      this.subCategory = [];
+      this.categoryDetails = [];
 
       //发送请求 获取数据
       this.miniWallkey = miniWallkey;
@@ -127,10 +121,8 @@ export default {
       });
     },
     _getSubCategory(maitKey) {
-      this.subCategoryDataLoading = true;
       return getSubCategory(maitKey).then(res => {
         this.subCategory = res?res.data.list:[];//快速点击 取消前一次操作时可能会返回undifined 所以做一次默认值
-        this.subCategoryDataLoading = false;
       });
     },
     _getCategoryDetails(miniWallkey, type) {
