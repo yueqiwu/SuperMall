@@ -62,6 +62,7 @@ export default {
       this.scroll && this.scroll.finishPullDown();
     },
     refresh() {
+      console.log('我更新了滚动条')
       this.scroll && this.scroll.refresh();
     },
     getScrollY() {

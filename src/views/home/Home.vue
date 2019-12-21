@@ -1,7 +1,15 @@
 <template>
   <div id="home" ref="home">
     <nav-bar class="home-nav">
-      <template v-slot:center>购物街</template>
+      <template v-slot:left>
+        <i class="ignore iconfont icon-scan"></i>
+      </template>
+      <template v-slot:center>
+        <search-box fake placeholder="品牌服装一元抢" @click.native="goSearch"></search-box>
+      </template>
+      <template v-slot:right>
+        <i class="ignore iconfont icon-msg"></i>
+      </template>
     </nav-bar>
     <tab-control
       @itemClick="tabClick"
@@ -62,6 +70,8 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabcontrol/TabControl";
 import GoodsList from "components/content/goodsList/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
+import SearchBox from "components/content/searchBox/SearchBox";
+
 // import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
@@ -78,7 +88,8 @@ export default {
     HomeFeature,
     TabControl,
     GoodsList,
-    Scroll
+    Scroll,
+    SearchBox
     // BackTop
   },
   data() {
@@ -207,6 +218,9 @@ export default {
 
       this.$refs.scroll.finishPullDown();
     },
+    goSearch() {
+      this.$router.push('/search')
+    },
     /**
      * axios请求
      */
@@ -282,6 +296,9 @@ export default {
   right: 0;
   left: 0;
   z-index: 9; */
+}
+.ignore.iconfont{
+  font-size: 20px;
 }
 .home-swiper {
   height: 199px;

@@ -6,9 +6,9 @@
     <div class="category-wrap ignore" ref="wrap">
       <menu-list :menuList="menuList" @itemClick="menuItemClick" />
       <scroll class="content" ref="scroll" :probeType="3" @scroll="contentScroll">
-        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll"/>
+        <sub-category :categoryList="subCategory" @imageLoad="refreshScroll" />
         <tab-control :titles="['综合','新品','销量']" @itemClick="tabItemClick" />
-        <goods-list :goodsList="categoryDetails"/>
+        <goods-list :goodsList="categoryDetails" />
       </scroll>
     </div>
     <transition name="backTop">
@@ -33,6 +33,11 @@ import {
 } from "network/category.js";
 import { debounce } from "commonjs/utils";
 import { backTopMixin } from "commonjs/mixins";
+import storage from "commonjs/storage";
+import {
+  SUPERMALL_SUB_CATEGORY,
+  CATEGORY_CONTENT_UPDATE_TIME_INTERVAL
+} from "./config";
 
 export default {
   name: "Category",
@@ -50,7 +55,7 @@ export default {
       subCategory: [],
       categoryDetails: [],
       currentType: "pop",
-      miniWallkey:null,
+      miniWallkey: null
     };
   },
   mixins: [backTopMixin],
@@ -74,8 +79,7 @@ export default {
     /**
      * 事件触发
      */
-    menuItemClick(index,maitKey, miniWallkey) {
-
+    menuItemClick(index, maitKey, miniWallkey) {
       //数据清空 组件重载
       this.subCategory = [];
       this.categoryDetails = [];
@@ -85,7 +89,7 @@ export default {
       this._getSubCategory(maitKey);
       this._getCategoryDetails(miniWallkey, this.currentType);
       //保证每次点击滚动条都在顶部
-      this.$refs.scroll.scrollTo(0,0,0);
+      this.$refs.scroll.scrollTo(0, 0, 0);
     },
     refreshScroll() {
       this.$refs.scroll.refresh();
@@ -107,29 +111,89 @@ export default {
       }
       this.categoryDetails.length = 0;
       this.goodsListKey = Math.random();
-      this._getCategoryDetails(this.miniWallkey,this.currentType)
+      this._getCategoryDetails(this.miniWallkey, this.currentType);
     },
     /**
      * axios请求
      */
     _getMenu() {
       return new Promise((resolve, reject) => {
-        getMenu().then(res => {
-          this.menuList = res.data.category.list;
-          resolve(res.data.category.list);
-        });
+        // 先从本地缓存中获得数据
+        const content = storage.get(SUPERMALL_SUB_CATEGORY);
+        const currentTime = new Date().getTime();
+        if (content && content.menu) {
+          if (
+            currentTime - content.saveTime >=
+            CATEGORY_CONTENT_UPDATE_TIME_INTERVAL
+          ) {
+            getMenu().then(res => {
+              this.menuList = res.data.category.list;
+              this.updateLocalStorage(SUPERMALL_SUB_CATEGORY, content, 'menu', res.data.category.list)
+              resolve(res.data.category.list);
+            });
+          } else {
+            this.menuList = content.menu.data;
+            resolve(content.menu.data);
+          }
+        }else{
+           getMenu().then(res => {
+              this.menuList = res.data.category.list;
+              this.updateLocalStorage(SUPERMALL_SUB_CATEGORY, content, 'menu', res.data.category.list)
+              resolve(res.data.category.list);
+            });
+        }
       });
     },
     _getSubCategory(maitKey) {
-      return getSubCategory(maitKey).then(res => {
-        this.subCategory = res?res.data.list:[];//快速点击 取消前一次操作时可能会返回undifined 所以做一次默认值
-      });
+      // console.log(storage)
+      // 先从本地缓存中获得数据
+      const content = storage.get(SUPERMALL_SUB_CATEGORY);
+      const currentTime = new Date().getTime();
+      if (content && content[maitKey]) {
+        if (
+          // 本地缓存中有数据但是超过时限 重新网络请求
+          currentTime - content[maitKey].saveTime >=
+          CATEGORY_CONTENT_UPDATE_TIME_INTERVAL
+        ) {
+          return getSubCategory(maitKey).then(res => {
+            this.subCategory = res ? res.data.list : []; //快速点击 取消前一次操作时可能会返回undifined 所以做一次默认值
+            this.updateLocalStorage(
+              SUPERMALL_SUB_CATEGORY,
+              content,
+              maitKey,
+              res.data.list
+            );
+          });
+        } else {
+          // 本地缓存中有数据并且没有超过时限
+          this.subCategory = content[maitKey].data;
+        }
+      } else {
+        // 本地缓存中没有数据 网络请求
+        return getSubCategory(maitKey).then(res => {
+          this.subCategory = res ? res.data.list : []; //快速点击 取消前一次操作时可能会返回undifined 所以做一次默认值
+          this.updateLocalStorage(
+            SUPERMALL_SUB_CATEGORY,
+            content,
+            maitKey,
+            res.data.list
+          );
+        });
+      }
     },
     _getCategoryDetails(miniWallkey, type) {
       return getCategoryDetails(miniWallkey, type).then(res => {
         this.categoryDetails = res || [];
         // console.log(res);
       });
+    },
+    // 更新localStorage
+    updateLocalStorage(key, content, id, data) {
+      content = content || {};
+      content[id] = content[id] || {};
+      content[id].saveTime = new Date().getTime();
+      content[id].data = data;
+      storage.set(key, content);
     }
   }
 };

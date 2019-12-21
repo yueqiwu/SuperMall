@@ -1,5 +1,5 @@
 <template>
-    <swiper :options="swiperOption">
+    <swiper :options="swiperOption" class="swiper">
       <swiper-slide v-for="(item,index) in banners" :key="index">
         <a :href="item.link">
           <img :src="item.image" @load="imageLoad"/>
@@ -54,6 +54,9 @@ export default {
 </script>
 
 <style scoped>
+.swiper{
+  height:100%;
+}
 img{
   width:100%;
   height:100%;

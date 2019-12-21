@@ -5,6 +5,7 @@ import store from './store'
 import VueLazyLoad from 'vue-lazyload'
 import Toast from 'components/common/toast'
 import FastClick from 'fastclick'
+import './plugins/element'
 
 import 'swiper/dist/css/swiper.css';
 

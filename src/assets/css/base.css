@@ -66,3 +66,22 @@ a {
   float: right;
 }
 
+#search .el-card .el-card__body{
+  padding:10px;
+}
+
+.el-message-box{
+  width:300px !important; 
+}
+/* 网络进度条 */
+#nprogress .bar{
+  background:pink !important;
+}
+#nprogress .bar .peg{
+  box-shadow: 0 0 2.66667vw pink, 0 0 1.33333vw pink !important;
+}
+#nprogress .spinner-icon{
+  border-top-color:pink !important;
+  border-left-color: pink !important;
+}
+
