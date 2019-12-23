@@ -17,6 +17,18 @@ export default {
     };
   },
   props: {
+    scrollX: { // 横向滚动
+      type: Boolean,
+      default: false
+    },
+    scrollY: { // 纵向滚动
+      type: Boolean,
+      default: true
+    },
+    click:{
+      type: Boolean,
+      default: true
+    },
     probeType: {
       type: Number,
       default: 0
@@ -35,7 +47,9 @@ export default {
       probeType: this.probeType, //设置是否监听滚动 0，1为默认不监听 2监听手指但不监听手指离开的惯性 3全监听
       pullUpLoad: this.pullUpLoad,
       pullDownRefresh:this.pullDownRefresh,
-      click: true,
+      click: this.click,
+      scrollY: this.scrollY,
+      scrollX: this.scrollX
     });
     this.scroll.on("scroll", position => {
       this.$emit("scroll", position);
@@ -48,6 +62,9 @@ export default {
       console.log('下拉刷新')
       this.$emit("pullDownRefresh");
     });
+    this.scroll.on("touchEnd", () => {
+      this.$emit("scrollTouchEnd");
+    })
   },
   methods: {
     scrollTo(x, y, time = 300) {

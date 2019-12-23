@@ -57,7 +57,7 @@ export default {
       console.log(res.result);
       if (res.result.length === 0) {
         this.haveResult = false;
-        console.log(this.haveResult)
+        console.log(this.haveResult);
         return 0;
       }
       this.queryList = res.result;
