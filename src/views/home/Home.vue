@@ -52,7 +52,11 @@
         ref="tabControl"
         class="tab-control"
       />
-      <goods-list :goodsList="goods[currentType].list" :currentType="currentType" :key="goodsListKey" />
+      <goods-list
+        :goodsList="goods[currentType].list"
+        :currentType="currentType"
+        :key="goodsListKey"
+      />
       <div class="load-text ignore" v-if="goods[currentType].list.length !==0">{{upLoadText}}</div>
     </scroll>
     <transition name="backTop">
@@ -117,7 +121,7 @@ export default {
     };
   },
   created() {
-    //1.请求多个数据
+    //1.请求多个数据 轮播图以及recommend
     this._getHomeMultidata();
     //2.请求商品数据
     this._getHomeGoods("pop");
@@ -219,16 +223,20 @@ export default {
       this.$refs.scroll.finishPullDown();
     },
     goSearch() {
-      this.$router.push('/search')
+      this.$router.push("/search");
     },
     /**
      * axios请求
      */
     _getHomeMultidata() {
-      getHomeMultidata().then(res => {
-        this.banners = res.data.banner.list;
-        this.recommends = res.data.recommend.list;
-      });
+      getHomeMultidata()
+        .then(res => {
+          this.banners = res.data.banner.list;
+          this.recommends = res.data.recommend.list;
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
     _getHomeGoods(type) {
       if (this.goods[type].loaded === false) return; //判断前一次请求数据是否返回了 没返回就不加载 避免加载多次
@@ -297,7 +305,7 @@ export default {
   left: 0;
   z-index: 9; */
 }
-.ignore.iconfont{
+.ignore.iconfont {
   font-size: 20px;
 }
 .home-swiper {
@@ -309,11 +317,14 @@ export default {
   overflow: hidden;
 }
 .content.ignore {
+  /* 正好遮住了上拉加载和下拉刷新的文字 */
   /* height:calc(100%-93px); */
   /* height: 100%; */
   position: absolute;
-  top: 4px;
-  bottom: -40px;
+  /* top 0 正好遮住下拉刷新 */
+  top: 0px;
+  /* bottom -44 正好遮住上拉加载 文字行高44 */
+  bottom: -44px;
   left: 0;
   right: 0;
 
@@ -336,7 +347,7 @@ export default {
 }
 
 .load-text.ignore {
-  line-height: 40px;
+  line-height: 44px;
   text-align: center;
 }
 

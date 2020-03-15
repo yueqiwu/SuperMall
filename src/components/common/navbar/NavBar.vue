@@ -1,8 +1,8 @@
 <template>
   <div class="navbar">
-    <div class="left" v-if="needLeft"><slot name="left"></slot></div>
+    <div class="left" v-if="needLeft" @click="$emit('leftClick')"><slot name="left"></slot></div>
     <div class="center" v-if="needCenter"><slot name="center"></slot></div>
-    <div class="right" v-if="needRigth"><slot name="right"></slot></div>
+    <div class="right" v-if="needRigth" @click="$emit('rightClick')"><slot name="right"></slot></div>
   </div>
 </template>
 
@@ -33,10 +33,7 @@ export default {
   },
   mounted() {
 
-  },
-  methods:{
-
-  },
+  }
  }
 </script>
 

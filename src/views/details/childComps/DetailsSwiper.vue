@@ -2,7 +2,7 @@
   <div class="details-swiper">
     <swiper v-if="topImages.length" :options="swiperOption">
       <swiper-slide v-for="(item,index) in topImages" :key="index">
-        <img :src="item" class="swiper-img" />
+        <img :src="item" class="swiper-img"/>
       </swiper-slide>
       <div class="swiper-pagination" slot="pagination"></div>
     </swiper>

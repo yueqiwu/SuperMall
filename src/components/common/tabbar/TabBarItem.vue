@@ -1,7 +1,7 @@
 <template>
-  <div class="tab-bar-item" @click="itemClick" :style="activeColor">
-    <slot name="item-icon"></slot>
-    <slot name="item-text"></slot>
+  <div class="tab-bar-item" @click="itemClick" :style="activeStyle">
+      <i :class="data.icon"></i>
+      <span>{{data.title}}</span>
   </div>
 </template>
 
@@ -13,26 +13,29 @@ export default {
     }
   },
   props: {
-    path: {
+    data: {
+      type: Object
+    },
+    activeColor:{
       type: String
     }
   },
   methods: {
     itemClick() {
-      if (this.$route.path === this.path) return;
-      this.$router.replace(this.path);
+      if (this.$route.path === this.data.path) return;
+      this.$router.replace(this.data.path);
     },
     
   },
   computed: {
+    // 判断当前是否为活动页
     isactive() {
-      return this.$route.path.indexOf(this.path) !== -1;
+      return this.$route.path.indexOf(this.data.path) !== -1;
     },
-    activeColor(){
-      if(this.isactive) return 'color:'+this.$store.state.activeColor
+    activeStyle(){
+      if(this.isactive) return 'color:'+this.activeColor
     }
-
-  },
+  }
 };
 </script>
 
@@ -47,10 +50,7 @@ export default {
   justify-content: center;
   font-size: 14px;
 }
-/* .iconfont {
+i {
   font-size: 22px;
 }
-.active {
-  color: red;
-} */
 </style>

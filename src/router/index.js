@@ -7,39 +7,45 @@ const Home = () => import('views/home/Home')
 const Category = () => import('views/category/Category')
 const Cart = () => import('views/cart/Cart')
 const Profile = () => import('views/profile/Profile')
-const Details = ()=> import('views/details/Details')
-const Search = ()=> import('views/search/Search')
+const Details = () => import('views/details/Details')
+const Search = () => import('views/search/Search')
+const Login = () => import('views/login/Login')
 
 
 const routes = [
   {
-    path:'/',
-    redirect:'/home'
+    path: '/',
+    redirect: '/home'
   },
   {
-    path:'/home',
-    component:Home
+    path: '/home',
+    component: Home
   },
   {
-    path:'/category',
-    component:Category
+    path: '/category',
+    component: Category
   },
   {
-    path:'/cart',
-    component:Cart
+    path: '/cart',
+    component: Cart
   },
   {
-    path:'/profile',
-    component:Profile
+    path: '/profile',
+    component: Profile
   },
   {
-    path:'/search',
-    component:Search
+    path: '/search',
+    component: Search
   },
   {
-    name:'details',
-    path:'/details/:Id',
-    component:Details
+    name: 'details',
+    path: '/details/:Id',
+    component: Details
+  },
+  {
+    name: 'login',
+    path: '/login',
+    component: Login
   }
 ]
 

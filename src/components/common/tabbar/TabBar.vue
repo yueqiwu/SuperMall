@@ -1,22 +1,25 @@
 <template>
   <div id="tab-bar">
-      <slot></slot>
+      <tab-bar-item v-for="(item, index) in data" :key="index" :data="item" :activeColor="activeColor"/>
   </div>
 </template>
 
 <script>
+import TabBarItem from './TabBarItem'
 export default {
     name:"tabBar",
+    components:{
+      TabBarItem
+    },
     props:{
       activeColor:{
         type:String,
         default:'red'
+      },
+      data:{
+        type:Array,
+        default:[]
       }
-    },
-    created(){
-      // console.log(this.activeColor)
-      this.$store.commit('setActiveColor',this.activeColor)
-      // console.log(this.$store.state.activeColor)
     }
 }
 </script>

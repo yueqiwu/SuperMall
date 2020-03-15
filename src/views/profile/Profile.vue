@@ -4,50 +4,74 @@
       <div class="title" slot="center">我的</div>
       <i class="iconfont icon-msg" slot="right"></i>
     </me-navbar>
-    <me-scroll class="content">
+    <me-scroll class="content" ref="scroll">
       <div class="personal-header">
         <div class="personal-icon">
-          <i class="iconfont icon-personal" slot="right"></i>
+          <i class="iconfont icon-personal" v-if="!userInfo"></i>
+          <img :src="userInfo.photo" alt="" v-else style="width:100%;">
         </div>
-        <div class="re">
+        <div class="re" v-show="!userInfo">
           <span>注册</span>
-          <span>登录</span>
+          <!-- <span>登录</span> -->
+          <router-link to="/login" tag="span">登录</router-link>
         </div>
       </div>
       <div class="mine-order">
-        <div class="order">
+        <!-- <div class="order">
           <i class="iconfont icon-home"></i>
           <p class="title">我的订单</p>
           <span>查看我的全部订单</span>
-        </div>
-        <div class="order-menu">
+        </div> -->
+        <van-cell title="我的订单" icon="orders-o" value="查看我的全部订单" is-link />
+        <!-- <div class="order-menu">
           <div v-for="(item,index) in orderMenuList" :key="index">
             <i class="iconfont" :class="item.class"></i>
             <span>{{item.text}}</span>
           </div>
-        </div>
+        </div> -->
+        <van-grid>
+          <van-grid-item icon="shopping-cart-o" text="待付款" />
+          <van-grid-item icon="gift-o" text="待收货" />
+          <van-grid-item icon="comment-o" text="待评价" />
+          <van-grid-item icon="close" text="退货/退款" />
+        </van-grid>
       </div>
       <div class="mine-assets">
-        <div class="assets">
+        <!-- <div class="assets">
           <i class="iconfont icon-category"></i>
           <p class="title">我的资产</p>
-        </div>
-        <div class="assets-menu">
+        </div> -->
+        <van-cell title="我的资产" icon=" '' iconfont icon-category"/>
+        <!-- <div class="assets-menu">
           <span>现金券</span>
           <span>红包</span>
           <span>余额</span>
           <span>礼品卡</span>
-        </div>
+        </div> -->
+        <van-grid :border="false">
+          <van-grid-item text="现金券" />
+          <van-grid-item text="红包" />
+          <van-grid-item text="余额" />
+          <van-grid-item text="礼品卡" />
+        </van-grid>
       </div>
-      <div class="mine-others">
+      <!-- <div class="mine-others">
         <me-menu v-for="item in othersList" :key="item">
           <i class="iconfont icon-msg" slot="left"></i>
           <p class="title" slot="center">{{item}}</p>
           <span slot="right" class="arrow">></span>
         </me-menu>
-      </div>
+      </div> -->
+      <van-cell-group class="mine-others">
+        <van-cell title="售后服务" icon="shop-o" is-link />
+        <van-cell title="意见反馈" icon="comment-o" is-link />
+        <van-cell title="收货地址" icon="logistics" is-link />
+        <van-cell title="退出登录" icon="close" :clickable="true" is-link @click="onLogout"/>
+        <van-cell title="400-123-8888" icon="phone-o" is-link />
+      </van-cell-group>
       <p class="phone-number">客服热线400-123-8888(8:00-22:00)</p>
       <p class="UID">拨打前请记录您的UID 0</p>
+      <!-- <div class="logoutBtn" @click="onLogout">退出登录</div> -->
     </me-scroll>
   </div>
 </template>
@@ -56,6 +80,8 @@
 import MeNavbar from "components/common/navbar/NavBar";
 import MeScroll from "components/common/scroll/Scroll";
 import MeMenu from "./childComps/menu";
+import { getSelf } from 'network/profile';
+import { SET_USER } from 'store/mutation-types.js'
 export default {
   name: "Personal",
   components: {
@@ -78,7 +104,50 @@ export default {
         { text: "待评价", class: "icon-msg" },
         { text: "退货/退款", class: "icon-category" }
       ],
+      userInfo: null
     };
+  },
+  created () {
+    if (this.$store.state.user) {
+      this.getUserInfo()
+    }
+  },
+  methods: {
+    async getUserInfo () {
+      try {
+        const {data} = await getSelf()
+        this.userInfo = data.data
+        console.log(this.userInfo)
+      } catch(err) {
+        if (err.response.status !== 401) { // =401token过期 request会自动刷新
+          this.$toast.show('获取用户信息失败')
+        }
+      } 
+    },
+    onLogout () {
+      this.$dialog.confirm({
+        title: '退户确认',
+        message: '退出当前头条账号，将不能同步收藏，发布评论和云端分享等'
+      }).then(() => {
+        // on confirm
+        this.$store.commit(SET_USER, null)
+        this.userInfo = null
+      }).catch(() => {
+        // on cancel
+      });  
+    }
+  },
+  watch: {
+    '$store.state.user': function () {
+      console.log('user发生了改编')
+      if (this.$store.state.user) {
+        this.getUserInfo()
+      }
+    }
+  },
+  activated () {
+    // 每次进来都更新一下滚动条
+    this.$refs.scroll.refresh()
   }
 };
 </script>
@@ -93,10 +162,10 @@ export default {
 }
 .content {
   position: absolute;
-  top: 44px;
+  top: 44Px;
   left: 0;
   right: 0;
-  bottom: 49px;
+  bottom: 49Px;
   overflow: hidden;
 }
 .nav-bar {
@@ -147,6 +216,7 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .personal .personal-header .personal-icon .icon-personal {
@@ -171,11 +241,11 @@ export default {
 
 .personal .mine-order {
   width: 100%;
-  height: 100px;
+  /* height: 100px; */
   background-color: #fff;
   margin-top: 10px;
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
 }
 
 .personal .mine-order .order {
@@ -286,5 +356,16 @@ export default {
   margin-left: 20px;
   margin-top: 10px;
   padding-bottom: 10px;
+}
+
+.logoutBtn {
+  width:80%;
+  height:40px;
+  background:var(--color-tint);
+  border-radius: 7px;
+  text-align: center;
+  line-height: 40px;
+  margin: 0 auto;
+  color:#fff;
 }
 </style>

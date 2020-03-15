@@ -89,15 +89,12 @@ export default {
     },
     itemScroll(position) {
       const positionX = position.x
-      // console.log(-position.x, this.delOrderBtnWidth / 2);
       if (positionX <= 0 && -positionX < this.delOrderBtnWidth / 2) {
-        // this.$refs.scroll.scrollTo(0, 0, 3000);
         this.isBounce = true;
       } else if (
         positionX <= 0 &&
         -positionX >= this.delOrderBtnWidth / 2
       ) {
-        // this.$refs.scroll.scrollTo(-this.delOrderBtnWidth, 0, 3000);
         this.isBounce = false
       }
     },

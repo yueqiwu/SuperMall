@@ -6,6 +6,7 @@ import VueLazyLoad from 'vue-lazyload'
 import Toast from 'components/common/toast'
 import FastClick from 'fastclick'
 import './plugins/element'
+import './plugins/vant'
 
 import 'swiper/dist/css/swiper.css';
 

@@ -27,7 +27,7 @@ export default {
     recommendsImageLoad() {
       this.$emit("recommendsImageLoad");
     },
-    imgLoad(){
+    imgLoad() {
       this.$bus.$emit("itemImageLoad");
     }
   }
@@ -35,15 +35,17 @@ export default {
 </script>
 
 <style scoped>
-.home-recommend {
+.recommends {
   width: 100%;
+  height: 122px;
+  background-color: #fff;
+}
+.home-recommend {
   display: flex;
   padding: 10px 0 20px;
-  background-color: #fff;
 }
 .recommendsItem {
   flex: 1;
-  display: block;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -55,11 +57,11 @@ export default {
   height: 70px;
   margin-bottom: 10px;
 }
-.loading{
-  width:100%;
-  height:120px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+.loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

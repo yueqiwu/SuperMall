@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     getHistoryList() {
-      this.historyList = storage.get("superMall_search_hotWords");
+      this.historyList = storage.get("superMall_search_hotWords",[]);
     },
     delItem(item) {
       this.historyList = this.historyList.filter(i => i !== item);
