@@ -125,6 +125,9 @@ export default {
       } 
     },
     onLogout () {
+      if (!this.userInfo) {
+        return
+      }
       this.$dialog.confirm({
         title: '退户确认',
         message: '退出当前头条账号，将不能同步收藏，发布评论和云端分享等'

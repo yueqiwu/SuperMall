@@ -1,9 +1,10 @@
 <template>
   <div class="loginPage">
     <nav-bar @leftClick="$router.back()">
-      <template v-slot:left><div style="font-family:'宋体'">&lt;</div></template>
+      <template v-slot:left><div class="left-arrow"></div></template>
     </nav-bar>
-    <h2 class="title">蘑菇街</h2>
+    <me-scroll class="content" ref="scroll">
+      <h2 class="title">蘑菇街</h2>
     <div class="tab">
       <span class="tab-item" :class="{active: isMessageLogin}" @click="isMessageLogin = true">短信登录</span>
       <span class="tab-item" :class="{active: !isMessageLogin}" @click="isMessageLogin = false">密码登录</span>
@@ -48,11 +49,15 @@
         <p style="text-align:center;font-size:14px;color:#aaa;"><a href="javascript:;">关于我们</a></p>
       </form>
     </div>
+    <van-divider>账号：13911111111 密码：246810</van-divider>
+    <van-divider>如果收不到验证码，请使用万能验证码：246810</van-divider>
+    </me-scroll>
   </div>
 </template>
 
 <script>
 import NavBar from 'components/common/navbar/NavBar'
+import MeScroll from "components/common/scroll/Scroll";
 import { loginApi, sendSmsCode } from 'network/login.js'
 import { SET_USER } from 'store/mutation-types.js'
 export default {
@@ -76,10 +81,17 @@ export default {
     }
   },
   components: {
-    NavBar
+    NavBar,
+    MeScroll
   },
   methods: {
     async getCode () { // 获取验证码
+      let {mobile, code} = this.messageLoginData
+      if (!mobile) {
+        return this.$toast.show('手机号不能为空')
+      } else if (!/^1(3|5|6|7|8|9)\d{9}$/.test(mobile)) {
+        return this.$toast.show('请输入正确的手机号')
+      } 
       this.showCutDown = true
       // ajax 请求后再开始
       try {
@@ -234,5 +246,20 @@ export default {
     background:var(--color-tint);
     border-radius: 5px;
     margin: 20px 0;
+  }
+  .left-arrow {
+    width: 10px;
+    height: 10px;
+    border-left: 1px solid #000;
+    border-top: 1px solid #000;
+    transform: rotate(-45deg);
+  }
+  .content {
+    position: absolute;
+    top: 44Px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
   }
 </style>

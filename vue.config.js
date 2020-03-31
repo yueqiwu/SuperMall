@@ -1,4 +1,6 @@
+const path = require('path')
 module.exports = {
+  publicPath:'http://47.100.92.1/supermall',
   configureWebpack: {
     resolve: {
       alias:{
